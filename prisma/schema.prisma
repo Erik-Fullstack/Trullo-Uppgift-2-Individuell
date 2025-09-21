@@ -15,22 +15,22 @@ datasource db {
 }
 
 enum Status {
-  TODO
-  IN_PROGRESS
-  BLOCKED
-  DONE
+  TODO @map("to-do")
+  IN_PROGRESS @map("in progress")
+  BLOCKED @map("blocked")
+  DONE @map("done")
 }
 
 model Task {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   finishedAt DateTime? 
   title String
   description String
   status Status @default(TODO)
-  assignedTo User? @relation(fields: [userId], references: [id])
-  userId Int?
+  user User? @relation(fields: [assignedTo], references: [id])
+  assignedTo Int?
 }
 
 model User {
