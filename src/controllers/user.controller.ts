@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import prisma from "../PrismaClient/prismaClient.js";
+import { Prisma } from "../generated/prisma/index.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv"
 dotenv.config()
@@ -9,33 +10,38 @@ const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) | 10;
 export class UserController {
     //CREATE USER
     async createUser(req: Request, res: Response) {
-        const { name, email, password } = req.body;
+        const { password, ...data } = req.body;
+
+        if (!password) return res.status(400).json({ message: "Password required" })
 
         try {
             const hashedPW = await bcrypt.hash(password, SALT_ROUNDS);
 
             const user = await prisma.user.create({
                 data: {
-                    name,
-                    email,
+                    ...data,
                     password: hashedPW
                 },
                 omit: {
                     password: true
                 }
             });
-
-            console.log(user);
-            res.status(201).json(user);
+            res.status(201).json({ data: user });
         } catch (error) {
             console.log(error);
-            res.status(500).json({error});
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+                res.status(409).json({ message: "Email is already in use.", error: error.meta })
+            } else if (error instanceof Prisma.PrismaClientValidationError) {
+                res.status(400).json({ message: "Invalid data input", error })
+            } else {
+                res.status(500).json(error);
+            }
         }
     };
 
     //GET USER
     async getUser(req: Request, res: Response) {
-        const {id} = req.params;
+        const { id } = req.params;
 
         try {
             const user = await prisma.user.findFirst({
@@ -47,12 +53,13 @@ export class UserController {
                     password: true
                 }
             });
-
-            console.log(user);
-            res.status(200).json(user);
+            if (user === null) {
+                return res.status(404).json({ error: `No user with id: ${id} exists in DB.` })
+            }
+            res.status(200).json({ data: user });
         } catch (error) {
             console.log(error);
-            res.status(500).json({error});
+            res.status(500).json({ error: "Internal server error" });
         }
     };
 
@@ -65,46 +72,55 @@ export class UserController {
                     password: true
                 }
             });
-
-            console.log(users);
-            res.status(200).json(users)
+            if (users.length === 0) {
+                return res.status(200).json({ message: "No users exists in DB." })
+            }
+            res.status(200).json({ data: users })
         } catch (error) {
             console.log(error)
-            res.status(500).json(error)
+            res.status(500).json({ error: "Internal server error" })
         }
     }
 
     //UPDATE USER
     async updateUser(req: Request, res: Response) {
-        const {id} = req.params;
+        const { id } = req.params;
         //optional patch, only updates fields which is in req.body
-        const {...newData} = req.body;
-        
+        const { password, ...newData } = req.body;
+
         try {
             //hasing new password if it is included in the req.body
-            if (req.body.password) {
-                newData.password = await bcrypt.hash(req.body.password, SALT_ROUNDS);
+            if (password) {
+                newData.password = await bcrypt.hash(password, SALT_ROUNDS);
             }
             const user = await prisma.user.update({
                 where: {
                     id: Number(id)
                 },
-                data: newData,
+                data: {
+                    ...newData
+                },
                 omit: {
                     password: true
                 }
             })
 
-            res.status(200).json(user)
+            res.status(200).json({ data: user })
         } catch (error) {
             console.log(error)
-            res.status(500).json(error)
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+                res.status(404).json(error.meta)
+            } else if (error instanceof Prisma.PrismaClientValidationError) {
+                res.status(400).json({ message: "Invalid data input", error })
+            } else {
+                res.status(500).json({ error: "Internal server error" })
+            }
         }
     }
 
     //DELETE USER
     async deleteUser(req: Request, res: Response) {
-        const {id} = req.params;
+        const { id } = req.params;
 
         try {
             const user = await prisma.user.delete({
@@ -115,10 +131,14 @@ export class UserController {
                     password: true
                 }
             })
-            res.status(209).json(user)
+            res.status(209).json({ data: user })
         } catch (error) {
             console.log(error);
-            res.status(500).json(error)
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+                res.status(404).json(error.meta)
+            } else {
+                res.status(500).json({ error: "Internal server error" })
+            }
         }
     }
 };

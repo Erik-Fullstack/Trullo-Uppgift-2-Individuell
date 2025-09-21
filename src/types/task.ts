@@ -1,8 +1,9 @@
 enum Status {
-    TODO = "to-do",
-    IN_PROGRESS = "in progress",
-    BLOCKED = "blocked",
-    DONE = "done"
+    //mapped in prisma schema to real names
+    TODO = "TODO",
+    IN_PROGRESS = "IN_PROGRESS",
+    BLOCKED = "BLOCKED",
+    DONE = "DONE"
 }
 
 export type Task = {
