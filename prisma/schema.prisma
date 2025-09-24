@@ -29,8 +29,8 @@ model Task {
   title String
   description String
   status Status @default(TODO)
-  user User? @relation(fields: [assignedTo], references: [id])
-  assignedTo Int?
+  user User? @relation(fields: [assignedTo], references: [id], onDelete: SetNull)
+  assignedTo Int? 
 }
 
 model User {

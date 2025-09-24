@@ -15,7 +15,7 @@ async function seedDB() {
 
         //generates 5 random users
         const userData = await Promise.all(
-            Array.from({ length: 5 }).map(async () => ({
+            Array.from({ length: 10 }).map(async () => ({
                 name: faker.person.fullName(),
                 email: faker.internet.email(),
                 password: await bcrypt.hash(faker.lorem.word({ length: { min: 5, max: 10 }, strategy: "closest" }), SALT_ROUNDS)
@@ -28,8 +28,30 @@ async function seedDB() {
         })
         console.log(`Added ${userData.length} users.`)
 
-        const taskData = Array.from({ length: 10 }).map(() => ({
-            title: `Visit: ${faker.location.country()}`,
+        const todos = [
+            "Handla mat",
+            "Tvätta kläder",
+            "Dammsuga vardagsrummet",
+            "Vattna blommorna",
+            "Betala räkningar",
+            "Ringa mamma",
+            "Planera middagen",
+            "Skriva inköpslista",
+            "Gå till gymmet",
+            "Boka tandläkartid",
+            "Sortera återvinningen",
+            "Diska",
+            "Städa badrummet",
+            "Skriva klart rapporten",
+            "Packa väskan",
+            "Skicka mejl till chefen",
+            "Hämta paket",
+            "Tvätta bilen",
+            "Planera helgen",
+            "Köpa present"
+        ]
+        const taskData = todos.map((item) => ({
+            title: item,
             description: faker.lorem.sentence({ min: 3, max: 6 })
         }))
 

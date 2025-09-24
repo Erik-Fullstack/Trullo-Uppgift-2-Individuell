@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import prisma from "../PrismaClient/prismaClient.js";
 import { Prisma } from "../generated/prisma/index.js";
-//TODO FIXA ERROR HANDLING 
+
 export class TaskController {
     //CREATE TASK
     async createTask(req: Request, res: Response) {
@@ -116,10 +116,10 @@ export class TaskController {
     //DELETE TASK
     async deleteTask(req: Request, res: Response) {
         const { id } = req.params;
-
+        //om en user som har en task assignad raderas så sätts tasken till NULL igen
         try {
             const task = await prisma.task.delete({
-                where: {
+                where: {                            
                     id: Number(id)
                 }
             })
