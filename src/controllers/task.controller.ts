@@ -7,7 +7,8 @@ import { Status } from "../types/task.js";
     const createTaskSchema = z.object({
         title: z.string().min(1),
         description: z.string().min(1),
-        assignedTo: z.int().positive().optional()
+        assignedTo: z.int().positive().optional(),
+        status: z.enum(Status).optional()
     }).strict();
     const updateTaskSchema = z.object({
         title: z.string().min(1).optional(),

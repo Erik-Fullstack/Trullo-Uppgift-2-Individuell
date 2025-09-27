@@ -1,10 +1,13 @@
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 import prisma from "./src/PrismaClient/prismaClient.js";
-import { faker } from "@faker-js/faker"
-import bcrypt from "bcrypt"
+import { faker } from "@faker-js/faker";
+import bcrypt from "bcrypt";
+// Prefer the Prisma generated enum so it always stays in sync with schema.prisma
+import { Status } from "./src/generated/prisma/index.js";
 
-dotenv.config()
-const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) | 10;
+dotenv.config();
+// Use logical OR for fallback, not bitwise OR
+const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10;
 
 async function seedDB() {
     try {
@@ -50,10 +53,16 @@ async function seedDB() {
             "Planera helgen",
             "Köpa present"
         ]
-        const taskData = todos.map((item) => ({
-            title: item,
-            description: faker.lorem.sentence({ min: 3, max: 6 })
-        }))
+        const statusValues = Object.values(Status);
+        const taskData = todos.map((item) => {
+            const status = statusValues[Math.floor(Math.random() * statusValues.length)];
+            return {
+                title: item,
+                description: faker.lorem.sentence({ min: 3, max: 6 }),
+                status: status,
+                ...(status === Status.DONE ? { finishedAt: new Date() } : {})
+            };
+        });
 
         await prisma.task.createMany({
             data: taskData
