@@ -94,7 +94,7 @@ export class UserController {
                     password: true
                 },
                 include: {
-                    tasks: (tasks ? true : false)
+                    tasks: (tasks === "true" ? true : false)
                 }
             });
             if (users.length === 0) {
@@ -159,7 +159,7 @@ export class UserController {
                     password: true
                 }
             })
-            res.status(209).json({ data: user })
+            res.status(200).json({ data: user })
         } catch (error) {
             console.log(error);
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {

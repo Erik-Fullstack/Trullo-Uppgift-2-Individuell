@@ -81,7 +81,7 @@ export class TaskController {
         try {
             const tasks = await prisma.task.findMany({
                 include: {
-                    user: (users ? true : false)
+                    user: (users === "true" ? true : false)
                 }
             });
             //No tasks found
@@ -199,7 +199,7 @@ export class TaskController {
                     assignedTo: {not: null}
                 },
                 include: {
-                    user: (users ? true : false)
+                    user: (users === "true" ? true : false)
                 }
             })
             //No tasks found
