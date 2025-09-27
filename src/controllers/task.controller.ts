@@ -1,10 +1,27 @@
 import type { Request, Response } from "express";
 import prisma from "../PrismaClient/prismaClient.js";
 import { Prisma } from "../generated/prisma/index.js";
+import z from "zod"
+import { Status } from "../types/task.js";
+
+    const createTaskSchema = z.object({
+        title: z.string().min(1),
+        description: z.string().min(1),
+        assignedTo: z.int().positive().optional()
+    }).strict();
+    const updateTaskSchema = z.object({
+        title: z.string().min(1).optional(),
+        description: z.string().min(1).optional(),
+        assignedTo: z.int().positive().optional(),
+        status: z.enum(Status).optional()
+    }).strict();
 
 export class TaskController {
     //CREATE TASK
     async createTask(req: Request, res: Response) {
+        const parsed = createTaskSchema.safeParse(req.body);
+        if (!parsed.success) return res.status(400).json({ message: "Invalid data input", error: parsed.error.issues })
+
         const { assignedTo, ...newData } = req.body;
 
         try {
@@ -75,8 +92,12 @@ export class TaskController {
     // //UPDATE TASK
     async updateTask(req: Request, res: Response) {
         const { id } = req.params;
+        const parsed = updateTaskSchema.safeParse(req.body);
+        if (!parsed.success) return res.status(400).json({ message: "Invalid data input", error: parsed.error.issues })
         //optional patch, only updates fields which is in req.body
         const { assignedTo, ...newData } = req.body;
+        if (Object.keys(newData).length === 0) return res.status(400).json({ message: "At least 1 field required to update" })
+
         try {
             if (newData.status === "DONE") newData.finishedAt = new Date();
             if (assignedTo) {

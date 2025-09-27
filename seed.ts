@@ -18,7 +18,7 @@ async function seedDB() {
             Array.from({ length: 10 }).map(async () => ({
                 name: faker.person.fullName(),
                 email: faker.internet.email(),
-                password: await bcrypt.hash(faker.lorem.word({ length: { min: 5, max: 10 }, strategy: "closest" }), SALT_ROUNDS)
+                password: await bcrypt.hash(faker.lorem.word({ length: { min: 5, max: 20 }, strategy: "closest" }), SALT_ROUNDS)
             }))
         );
 

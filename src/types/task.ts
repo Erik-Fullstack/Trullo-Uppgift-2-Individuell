@@ -1,4 +1,4 @@
-enum Status {
+export enum Status {
     //mapped in prisma schema to real names
     TODO = "TODO",
     IN_PROGRESS = "IN_PROGRESS",
@@ -7,8 +7,8 @@ enum Status {
 }
 
 export type Task = {
-    title?: String,
+    title: String,
     description?: String,
-    status?: Status,
-    assignedTo?: String
+    status: Status,
+    assignedTo: null | String
 }
