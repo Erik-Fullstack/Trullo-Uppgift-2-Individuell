@@ -2,11 +2,10 @@ import dotenv from "dotenv";
 import prisma from "./src/PrismaClient/prismaClient.js";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcrypt";
-// Prefer the Prisma generated enum so it always stays in sync with schema.prisma
 import { Status } from "./src/generated/prisma/index.js";
 
 dotenv.config();
-// Use logical OR for fallback, not bitwise OR
+
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10;
 
 async function seedDB() {
@@ -16,7 +15,7 @@ async function seedDB() {
 
         console.log("Cleared old data from DB")
 
-        //generates 5 random users
+        //generates 10 random users
         const userData = await Promise.all(
             Array.from({ length: 10 }).map(async () => ({
                 name: faker.person.fullName(),
@@ -54,6 +53,7 @@ async function seedDB() {
             "Köpa present"
         ]
         const statusValues = Object.values(Status);
+        //generates 20 random tasks from todo array
         const taskData = todos.map((item) => {
             const status = statusValues[Math.floor(Math.random() * statusValues.length)];
             return {
@@ -63,7 +63,7 @@ async function seedDB() {
                 ...(status === Status.DONE ? { finishedAt: new Date() } : {})
             };
         });
-
+        //adds tasks to DB
         await prisma.task.createMany({
             data: taskData
         })

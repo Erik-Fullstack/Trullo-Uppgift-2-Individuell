@@ -8,7 +8,7 @@ export enum Status {
 
 export type Task = {
     title: String,
-    description?: String,
+    description: String,
     status: Status,
     assignedTo: null | String
 }
