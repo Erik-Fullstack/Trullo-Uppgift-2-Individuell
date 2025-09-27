@@ -17,11 +17,16 @@ async function seedDB() {
 
         //generates 10 random users
         const userData = await Promise.all(
-            Array.from({ length: 10 }).map(async () => ({
-                name: faker.person.fullName(),
-                email: faker.internet.email(),
-                password: await bcrypt.hash(faker.lorem.word({ length: { min: 5, max: 20 }, strategy: "closest" }), SALT_ROUNDS)
-            }))
+            Array.from({ length: 10 }).map(async () => {
+                const firstName = faker.person.firstName()
+                const lastName = faker.person.lastName()
+                return {
+                    name: firstName + " " + lastName,
+                    email: faker.internet.email({firstName, lastName}),
+                    password: await bcrypt.hash(faker.lorem.word({ length: { min: 5, max: 20 }, strategy: "closest" }), SALT_ROUNDS)
+
+                }
+            })
         );
 
         //adds the users to users table
