@@ -76,12 +76,17 @@ export class TaskController {
 
     // //GET ALL TASKS
     async getAll(req: Request, res: Response) {
+        const { users } = req.query;
+
         try {
             const tasks = await prisma.task.findMany({
+                include: {
+                    user: (users ? true : false)
+                }
             });
             //No tasks found
             if (tasks.length === 0) {
-                return res.status(200).json({ message: "No users exists in DB." })
+                return res.status(404).json({ message: "No users exists in DB." })
             }
             res.status(200).json({ data: tasks })
         } catch (error) {
@@ -97,7 +102,7 @@ export class TaskController {
         if (!parsed.success) return res.status(400).json({ message: "Invalid data input", error: parsed.error.issues })
         //optional patch, only updates fields which is in req.body
         const { assignedTo, ...newData } = req.body;
-        if (Object.keys(newData).length === 0) return res.status(400).json({ message: "At least 1 field required to update" })
+        if (Object.keys(newData).length === 0 && !assignedTo) return res.status(400).json({ message: "At least 1 field required to update" })
 
         try {
             if (newData.status === "DONE") newData.finishedAt = new Date();
@@ -181,6 +186,30 @@ export class TaskController {
             } else {
                 res.status(500).json({ error: "Internal server error" })
             }
+        }
+    }
+
+    //GET ONLY TASKS WITH USER ASSIGNED
+    async getAssignedTasks(req: Request, res: Response) {
+        const { users } = req.query;
+
+        try {
+            const assignedTasks = await prisma.task.findMany({
+                where: {
+                    assignedTo: {not: null}
+                },
+                include: {
+                    user: (users ? true : false)
+                }
+            })
+            //No tasks found
+            if (assignedTasks.length === 0) {
+                return res.status(404).json({ message: "No users with assigned tasks in DB." })
+            }
+            res.status(200).json({ data: assignedTasks })
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ error: "Internal server error" })
         }
     }
 };

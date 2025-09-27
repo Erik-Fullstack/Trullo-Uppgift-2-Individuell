@@ -55,9 +55,10 @@ export class UserController {
         }
     };
 
-    //GET USER
+    //GET USER (with their tasks)
     async getUser(req: Request, res: Response) {
         const { id } = req.params;
+        const { tasks } = req.query;
 
         try {
             const user = await prisma.user.findFirst({
@@ -67,6 +68,9 @@ export class UserController {
                 //omitting password
                 omit: {
                     password: true
+                },
+                include: {
+                    tasks: (tasks ? true : false)
                 }
             });
             if (user === null) {
@@ -82,10 +86,15 @@ export class UserController {
 
     //GET ALL USERS
     async getAll(req: Request, res: Response) {
+        const { tasks } = req.query;
+
         try {
             const users = await prisma.user.findMany({
                 omit: {
                     password: true
+                },
+                include: {
+                    tasks: (tasks ? true : false)
                 }
             });
             if (users.length === 0) {
