@@ -7,14 +7,27 @@
     },
     "servers": [
         {
-            "url": "http://localhost:<PORT>",
-            "description": "Local development"
+            "url": "/",
+            "description": "Local development on port set in ENV"
+        }
+    ],
+    "tags": [
+        {
+            "name": "tasks",
+            "description": "Operations related to tasks"
+        },
+        {
+            "name": "users",
+            "description": "Operations related to users"
         }
     ],
     "paths": {
         "/tasks": {
             "post": {
-                "summary": "Create a task",
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Create a task (assignedTo & status are optional fields)",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -48,6 +61,9 @@
                 }
             },
             "get": {
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "Get all tasks",
                 "parameters": [
                     {
@@ -84,7 +100,10 @@
         },
         "/tasks/assignedTasks": {
             "get": {
-                "summary": "Get only tasks which have users assigned",
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Get only tasks which have users assigned to them",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/includeUsers"
@@ -120,6 +139,9 @@
         },
         "/tasks/{id}": {
             "get": {
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "Get a single task by id",
                 "parameters": [
                     {
@@ -146,7 +168,10 @@
                 }
             },
             "patch": {
-                "summary": "Update a task (partial)",
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Update a task (all fields are optional)",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/taskId"
@@ -185,6 +210,9 @@
                 }
             },
             "delete": {
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "Delete a task",
                 "parameters": [
                     {
@@ -213,6 +241,9 @@
         },
         "/tasks/assign/{taskId}": {
             "patch": {
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "Assign a task to a user",
                 "parameters": [
                     {
@@ -263,6 +294,9 @@
         },
         "/users": {
             "post": {
+                "tags": [
+                    "users"
+                ],
                 "summary": "Create a user",
                 "requestBody": {
                     "required": true,
@@ -297,6 +331,9 @@
                 }
             },
             "get": {
+                "tags": [
+                    "users"
+                ],
                 "summary": "Get all users",
                 "parameters": [
                     {
@@ -330,6 +367,9 @@
         },
         "/users/{id}": {
             "get": {
+                "tags": [
+                    "users"
+                ],
                 "summary": "Get a user by id",
                 "parameters": [
                     {
@@ -359,7 +399,10 @@
                 }
             },
             "patch": {
-                "summary": "Update a user",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update a user (all fields are optional)",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/userId"
@@ -398,6 +441,9 @@
                 }
             },
             "delete": {
+                "tags": [
+                    "users"
+                ],
                 "summary": "Delete a user",
                 "parameters": [
                     {
