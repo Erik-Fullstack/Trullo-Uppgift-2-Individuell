@@ -54,6 +54,13 @@ npm run seed
 
 Det går även att köra en lokal DB men då krävs MAMP eller liknande med en MySQL-databas.
 
+### Se databsen visuellt
+
+Då databasen körs från en docker image så går det enbart att kolla på databasen visuellt med prisma studio.
+```base
+npx prisma studio
+```
+
 ---
 
 ## 🔑 Autentisering & Roller
