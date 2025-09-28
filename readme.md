@@ -1,76 +1,82 @@
-# Examinationsuppgift - Trullo
+# 📌 Examinationsuppgift – Trullo
 
-## Mål
+## 💡 Teoretiska resonemang
 
-Målet är att skapa ett REST-API för en projekthanterings-applikation vid namn Trullo. API\:et ska möjliggöra att användare (User) kan skapa uppgifter (Task) och planera projekt. Databasen ska vara antingen SQL eller NoSQL.
+### Val av databas
+Jag valde att använda MySQL då arbetsplatsen jag ska ha min LIA på använder det mestadels, även om det inte är med prisma så såg jag det som ett bra tillfälle att sätta mig in lite grann i det igen då det var ett bra tag sen jag använde det. Likaså använder jag docker som server med en MySQL image då jag vill fördjupa mig mer i det.
 
-### Teoretiska resonemang
+### Använda tekniker och npm-paket
+Jag har "standard" paketen när det gäller backend i node (express, dotenv, bcrypt, jsonwebtoken, zod) för env filer, hashning av lösenord och session-tokens.  
+Jag använder även faker för seed-data och swagger-ui-express för att visa en "swagger/openAPI" med mina routes.
 
-- Motivera ditt val av databas
-- Redogör vad de olika teknikerna (ex. verktyg, npm-paket, etc.) gör i applikationen
-- Redogör översiktligt hur applikationen fungerar
+### Applikationens översikt
+Appen är en API som hanterar "users" och "tasks", users är en tabell med raderna: "name", "email", "password" och en optional enum "role" som defaultar till "MEMBER".
 
-### Krav för Godkänt
+Tasks är en tabell med raderna: "title" och "description" med 2 optional keys "assignedTo" som sätter en relation till en user eller defaultar till null och enum "status" som defaultar till TODO.
 
-- REST-API\:et använder **Node.js, Express och TypeScript**
-- **SQL- eller NoSQL-databas**
-  - Om SQL → använd t.ex. Prisma med migrationer. Om NoSQL (MongoDB & Mongoose) → definiera relevanta scheman och modeller.
-- Datamodellen har objektet `Task` med följande fält
+Seed.ts är ett seed som skapar 10 användare och 20 tasks samt 1 admin och 1 member med hårdkodade värden (name: "admin", email: "admin@mail.com", password: "admin" och name: "member", email: "member@mail.com", password: "member") för att kunna testa authentication/authorization med middlewares och jwt.
 
-  - `id`
-  - `title`
-  - `description`
-  - `status` (tillåtna värden: `"to-do"`, `"in progress"`, `"blocked"`, `"done"`)
-  - `assignedTo` (**referens till `User.id`, kan vara `null`**)
-    Om värdet inte är `null` måste användaren finnas (validera i endpointen innan skrivning).
-  - `createdAt` (**sätts automatiskt på serversidan**)
-  - `finishedAt` (**sätts automatiskt när `status` uppdateras till `"done"`; annars `null`**)
+Routen "/login" finns även för att logga in med en användares email och lösenord för att skapa en token.
 
-- Datamodellen har objektet `User` med följande fält
+Just nu finns bara en route med auth och det är "/users/:id" med DELETE för att testa. I den routen så kan enbart personer med ADMIN rollen radera alla användare och MEMBERS kan enbart radera sig själva.
 
-  - `id`
-  - `name`
-  - `email` (**unik, giltigt format**)
-  - `password` (**minst 8 tecken**, lagras **inte** i klartext, använd bcrypt ex.)
+När tasks skapas så kan dom skapas med utan en user och assignedTo är då null men den kan sättas till en användares id i routen "tasks/assign/:taskId" som enbart är till för att assigna en user till en task eller genom att patcha/updatera en task i "tasks/:id".
 
-- Möjlighet att **skapa, läsa, uppdatera och ta bort** en `User`
-- Möjlighet att **skapa, läsa, uppdatera och ta bort** en `Task`
-- En `User` kan **tilldelas** en `Task` via fältet `assignedTo`
-- **Grundläggande validering och felhantering**
-  Vid ogiltig indata → `400`, resurs saknas → `404`, unikhetskonflikt (t.ex. e-post) → `409`, internt fel → `500`.
+Raderas en användare som har tasks assignade till sig så sätts assignedTo till null i tasken.
 
-### Vidareutveckling för Väl Godkänt
+---
 
-Följande urval är exempel på vidareutveckling. Egna förslag välkomnas.
+## ⚙️ Installation & Setup
 
-- Applikationen är **robust** med genomtänkt **felhantering och validering** (viktigast för VG)
-- Utveckla datamodellen med fler fält och objekt
-  – t.ex. `tags` på `Task`, `Project` (Trello-liknande board) där `Task` tillhör ett projekt
-- **Authentication & Authorization**
+### Förkrav
+- Docker Desktop  
+- Node.js / VSCode (eller annan editor)
 
-  - Implementera autentisering med **JWT**
-  - Endast autentiserade användare kan ändra sina uppgifter
-  - **Rollhantering** (t.ex. `role: "admin"`) som kan administrera alla användare/uppgifter
-  - **Färdigställare / audit (`finishedBy`)**
-    - Lägg till fältet `finishedBy: User.id | null` på `Task` (**VG**).
-    - Sätts **automatiskt på serversidan** när en task byter status från något annat till `"done"`; klienten ska **inte** skicka detta fält.
-    - Använd den inloggade användaren från JWT (t.ex. `req.user.id`).
+### Första gången setup
+1. Clona ner repot och öppna Docker Desktop.  
+2. I repot, ladda ner paket som krävs:
+   ```bash
+   npm i
+   ```
+3. Skapa en `.env` och kopiera över de 4 variablarna från `.env_example`.  
+   Variablarna går att ändra till valfria förutom `DATABASE_URL` som har vissa variablar satta i docker-compose filen. Vill du ändra dom så måste du även ändra där innan du går vidare med setup!  
+4. Kör sedan:
+   ```bash
+   npm run setup
+   ```
+   Detta kommando kommer att ladda ned en MySQL image från Docker, generera en Prisma-klient med migrationen som finns i repot och sedan seeda databasen.
 
-- **Kryptera lösenord** i databasen (hash + salt)
-- Implementera möjlighet för användaren att **nollställa och välja nytt lösenord**
+### Starta servern
+```bash
+npm run dev
+```
 
-### Inlämning
+### Seeda om databasen
+```bash
+npm run seed
+```
+(OBS: fungerar endast om docker containern är igång)
 
-- Lägg en textfil med svaren från **Teoretiska resonemang** i roten av repo (t.ex. `README.md`)
-- Lämna in länk till git-repo (t.ex. GitHub) i Canvas
-- Inlämning senast **måndagen den 29\:e september kl. 23:59**
-- Bifoga en kort **körguide** i `README.md` (hur man startar, env-variabler). En enkel `env.example` uppskattas.
+Det går även att köra en lokal DB men då krävs MAMP eller liknande med en MySQL-databas.
 
-**Seed-data:**
-Repo får gärna också innehålla:
+---
 
-- En scriptad seed (t.ex. `npm run seed`) som skapar **minst 2 users** (varav 1 admin om du gör VG-auth) och **minst 4 tasks** med blandade statusar.
-- Lösenord i seed ska **hashas** (inte i klartext i DB).
-- `assignedTo` i seed ska peka på befintlig user (eller vara `null`).
-- (Om auth) dokumentera testkonto i `README.md` (t.ex. `admin@example.com` / `Passw0rd!`).
-- Beskriv hur man kör seed i `README.md`.
+## 🔑 Autentisering & Roller
+För att få tillgång till DELETE users behövs en login via `/login` routen först.  
+
+- **Admin** kan radera alla användare.  
+- **Member** kan enbart radera sig själv.  
+
+### Testkonton
+- **Admin**
+  - Email: `admin@mail.com`
+  - Password: `admin`
+- **Member**
+  - Email: `member@mail.com`
+  - Password: `member`
+
+---
+
+## 📚 Dokumentation
+Swagger/OpenAPI-dokumentation finns tillgänglig på:  
+👉 `http://localhost:3000/docs` (eller den port du anger i `.env`)  

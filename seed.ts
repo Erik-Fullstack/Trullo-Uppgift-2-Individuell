@@ -11,8 +11,9 @@ const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10;
 
 async function seedDB() {
     try {
-        await prisma.user.deleteMany()
+        
         await prisma.task.deleteMany()
+        await prisma.user.deleteMany()
 
         console.log("Cleared old data from DB")
 

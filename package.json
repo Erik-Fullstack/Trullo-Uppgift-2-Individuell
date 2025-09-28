@@ -8,7 +8,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "seed": "npx tsx seed.ts"
+    "seed": "npx tsx seed.ts",
+    "setup": "docker-compose up -d && npx prisma migrate dev --name init && npm run seed && npm run dev"
   },
   "keywords": [],
   "author": "",
