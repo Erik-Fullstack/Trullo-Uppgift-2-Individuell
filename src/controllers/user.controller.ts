@@ -9,16 +9,16 @@ dotenv.config()
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10;
 
-    const createUserSchema = z.object({
-        name: z.string().min(1),
-        email: z.email(),
-        password: z.string().min(5)
-    }).strict();
-    const updateUserSchema = z.object({
-        name: z.string().min(1).optional(),
-        email: z.email().optional(),
-        password: z.string().min(5).optional()
-    }).strict();
+const createUserSchema = z.object({
+    name: z.string().min(1),
+    email: z.email(),
+    password: z.string().min(5)
+}).strict();
+const updateUserSchema = z.object({
+    name: z.string().min(1).optional(),
+    email: z.email().optional(),
+    password: z.string().min(5).optional()
+}).strict();
 
 export class UserController {
     //CREATE USER
@@ -50,7 +50,7 @@ export class UserController {
             } else if (error instanceof Prisma.PrismaClientValidationError) {
                 res.status(400).json({ message: "Invalid data input", error })
             } else {
-                res.status(500).json({message: "Internal server error", error});
+                res.status(500).json({ message: "Internal server error", error });
             }
         }
     };
@@ -149,17 +149,33 @@ export class UserController {
     //DELETE USER 
     async deleteUser(req: Request, res: Response) {
         const { id } = req.params;
+        const userId = req.user.id
+        const userRole = req.user.role
 
         try {
-            const user = await prisma.user.delete({
-                where: {
-                    id: Number(id)
-                },
-                omit: {
-                    password: true
-                }
-            })
-            res.status(200).json({ data: user })
+            if (userRole === "ADMIN") {
+                const user = await prisma.user.delete({
+                    where: {
+                        id: Number(id)
+                    },
+                    omit: {
+                        password: true
+                    }
+                })
+                res.status(200).json({ data: user })
+            } else if (userId === Number(id)) {
+                const user = await prisma.user.delete({
+                    where: {
+                        id: Number(id)
+                    },
+                    omit: {
+                        password: true
+                    }
+                })
+                res.status(200).json({ data: user })
+            } else {
+                res.status(401).json({ message: "Only admins can delete anyone, members can only delete themselves!"})
+            }
         } catch (error) {
             console.log(error);
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {

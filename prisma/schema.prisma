@@ -21,6 +21,11 @@ enum Status {
   DONE @map("done")
 }
 
+enum Role {
+  ADMIN 
+  MEMBER
+}
+
 model Task {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -38,5 +43,6 @@ model User {
   name String
   email String @unique
   password String
-  tasks Task[] 
+  tasks Task[]
+  role Role @default(MEMBER)
 }

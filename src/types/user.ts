@@ -1,4 +1,7 @@
-
+export enum Role {
+    ADMIN,
+    MEMBER
+}
 
 export type User = {
     name: string,

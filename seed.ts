@@ -3,6 +3,7 @@ import prisma from "./src/PrismaClient/prismaClient.js";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcrypt";
 import { Status } from "./src/generated/prisma/index.js";
+import { Role } from "./src/generated/prisma/index.js";
 
 dotenv.config();
 
@@ -22,9 +23,8 @@ async function seedDB() {
                 const lastName = faker.person.lastName()
                 return {
                     name: firstName + " " + lastName,
-                    email: faker.internet.email({firstName, lastName}),
+                    email: faker.internet.email({ firstName, lastName }),
                     password: await bcrypt.hash(faker.lorem.word({ length: { min: 5, max: 20 }, strategy: "closest" }), SALT_ROUNDS)
-
                 }
             })
         );
@@ -33,7 +33,28 @@ async function seedDB() {
         await prisma.user.createMany({
             data: userData
         })
-        console.log(`Added ${userData.length} users.`)
+
+        await prisma.user.create({
+            data: {
+                name: "member",
+                email: "member@mail.com",
+                password: await bcrypt.hash("member", SALT_ROUNDS),
+                role: Role.MEMBER
+            }
+
+        })
+        await prisma.user.create({
+            data: {
+                name: "admin",
+                email: "admin@mail.com",
+                password: await bcrypt.hash("admin", SALT_ROUNDS),
+                role: Role.ADMIN
+            }
+
+        })
+        console.log(`Added ${userData.length} users + 1 admin and 1 member with hard coded login credentials for testing purposes.`)
+        console.log('Admin: {name: "admin", email: "admin@mail.com", password: "admin"}.')
+        console.log('Member: {name: "member", email: "member@mail.com", password: "member"}.')
 
         const todos = [
             "Handla mat",
