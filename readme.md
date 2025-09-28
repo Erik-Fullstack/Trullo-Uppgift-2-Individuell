@@ -44,12 +44,7 @@ Raderas en användare som har tasks assignade till sig så sätts assignedTo til
    ```bash
    npm run setup
    ```
-   Detta kommando kommer att ladda ned en MySQL image från Docker, generera en Prisma-klient med migrationen som finns i repot och sedan seeda databasen.
-
-### Starta servern
-```bash
-npm run dev
-```
+   Detta kommando kommer att ladda ned en MySQL image från Docker, generera en Prisma-klient med migrationen som finns i repot och sedan seeda databasen och starta servern.
 
 ### Seeda om databasen
 ```bash
