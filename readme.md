@@ -18,7 +18,7 @@ Seed.ts är ett seed som skapar 10 användare och 20 tasks samt 1 admin och 1 me
 
 Routen "/login" finns även för att logga in med en användares email och lösenord för att skapa en token.
 
-Just nu finns bara en route med auth och det är "/users/:id" med DELETE för att testa. I den routen så kan enbart personer med ADMIN rollen radera alla användare och MEMBERS kan enbart radera sig själva.
+Just nu finns bara en route med auth för att underlätta att slippa skapa nya admins/members och logga in dem varje gång man vill testa med ny data. Routen är "/users/:id" med DELETE för att kunna testa AUTH över huvudtaget. I den routen så kan enbart personer med ADMIN rollen radera alla användare och MEMBERS kan enbart radera sig själva.
 
 När tasks skapas så kan dom skapas med utan en user och assignedTo är då null men den kan sättas till en användares id i routen "tasks/assign/:taskId" som enbart är till för att assigna en user till en task eller genom att patcha/updatera en task i "tasks/:id".
 
@@ -55,8 +55,11 @@ npm run seed
 Det går även att köra en lokal DB men då krävs MAMP eller liknande med en MySQL-databas.
 
 ### Se databsen visuellt
+https://trullo-frontend.netlify.app/
+Denna deployade frontend fungerar med backenden för att testa routes mer visuellt.
+(Denna frontend är modifierad från ett annat projekt så koden och stylingen är inte perfekt men alla routes är funktionella!)
 
-Då databasen körs från en docker image så går det enbart att kolla på databasen visuellt med prisma studio.
+Utan frontend så fungerar prisma studio för att se datan så länge databasen+api körs lokalt/docker och testa routes med thunderclient/postman.
 ```base
 npx prisma studio
 ```
