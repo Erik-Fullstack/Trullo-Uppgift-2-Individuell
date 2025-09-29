@@ -56,11 +56,15 @@ export class TaskController {
     //GET TASK
     async getTask(req: Request, res: Response) {
         const { id } = req.params;
+        const { users } = req.query;
 
         try {
             const task = await prisma.task.findFirst({
                 where: {
                     id: Number(id)
+                },
+                include: {
+                    user: (users === "true" ? true : false)
                 }
             });
             if (task === null) {
