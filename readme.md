@@ -55,9 +55,9 @@ npm run seed
 Det går även att köra en lokal DB men då krävs MAMP eller liknande med en MySQL-databas.
 
 ### Se databsen visuellt
-https://trullo-frontend.netlify.app/
+https://trullo-frontend.netlify.app/ (baserad på repo https://github.com/Erik-Fullstack/frontend-trullo)
 Denna deployade frontend fungerar med backenden för att testa routes mer visuellt.
-(Denna frontend är modifierad från ett annat projekt så koden och stylingen är inte perfekt men alla routes är funktionella!)
+(Denna frontend är modifierad från ett annat projekt med en hel del hjälp av AI så koden och stylingen är inte perfekt men alla routes är funktionella!)
 
 Utan frontend så fungerar prisma studio för att se datan så länge databasen+api körs lokalt/docker och testa routes med thunderclient/postman.
 ```base
